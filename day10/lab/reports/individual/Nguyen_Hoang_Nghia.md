@@ -31,9 +31,9 @@ _________________
 
 **Bằng chứng (commit / comment trong code):**
 
-Commit: Update Freshness and ETL
-Commit: Sprint 3: Freshness check
-Commit: Update quarantine and cleaned files
+- Commit: Update Freshness and ETL
+- Commit: Sprint 3: Freshness check
+- Commit: Update quarantine and cleaned files
 _________________
 
 ---
