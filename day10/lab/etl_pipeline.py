@@ -53,7 +53,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         print(f"ERROR: raw file not found: {raw_path}", file=sys.stderr)
         return 1
 
-    log_path = LOG_DIR / f"run_{run_id.replace(':', '-')}.log"
+    log_path = LOG_DIR / f"run_freshness_update_{run_id.replace(':', '-')}.log"
     for p in (LOG_DIR, MAN_DIR, QUAR_DIR, CLEAN_DIR):
         p.mkdir(parents=True, exist_ok=True)
 
@@ -122,7 +122,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     man_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     log(f"manifest_written={man_path.relative_to(ROOT)}")
 
-    status, fdetail = check_manifest_freshness(man_path, sla_hours=float(os.environ.get("FRESHNESS_SLA_HOURS", "200")))
+    status, fdetail = check_manifest_freshness(man_path, sla_hours=float(os.environ.get("FRESHNESS_SLA_HOURS", "125")))
     log(f"freshness_check={status} {json.dumps(fdetail, ensure_ascii=False)}")
 
     log("PIPELINE_OK")
