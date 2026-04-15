@@ -33,6 +33,9 @@ Ràng buộc chất lượng chính:
 
 - `no_duplicate_chunk_text`: severity warn
 - `no_stale_refund_window`: severity halt
+- `exported_at_parseable_iso8601`: severity halt
+- `chunk_text_no_invisible_chars`: severity warn
+- `unique_cleaned_chunk_id`: severity halt
 
 ---
 
@@ -80,4 +83,4 @@ Freshness SLA:
 
 - measured_at: publish
 - sla_hours: 24
-- alert_channel: cần được điền theo kênh cảnh báo thực tế của nhóm
+- alert_channel: stdout + manifest JSON

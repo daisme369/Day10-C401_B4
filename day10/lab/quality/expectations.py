@@ -7,6 +7,7 @@ Sinh viên có thể thay bằng GE / pydantic / custom — miễn là có halt 
 from __future__ import annotations
 
 import re
+from datetime import datetime
 from dataclasses import dataclass
 from typing import Any, Dict, List, Tuple
 
@@ -109,6 +110,54 @@ def run_expectations(cleaned_rows: List[Dict[str, Any]]) -> Tuple[List[Expectati
             ok6,
             "halt",
             f"violations={len(bad_hr_annual)}",
+        )
+    )
+
+    # E7: exported_at phải parse được theo ISO 8601 sau clean
+    def _parse_iso8601(value: str) -> bool:
+        text = (value or "").strip()
+        if not text:
+            return False
+        try:
+            datetime.fromisoformat(text.replace("Z", "+00:00") if text.endswith("Z") else text)
+            return True
+        except ValueError:
+            return False
+
+    bad_exported = [r for r in cleaned_rows if not _parse_iso8601(str(r.get("exported_at") or ""))]
+    ok7 = len(bad_exported) == 0
+    results.append(
+        ExpectationResult(
+            "exported_at_parseable_iso8601",
+            ok7,
+            "halt",
+            f"invalid_exported_at_rows={len(bad_exported)}",
+        )
+    )
+
+    # E8: không còn ký tự vô hình / BOM trong chunk_text sau sanitize
+    invisible_pattern = re.compile(r"[\u200b\u200c\u200d\ufeff]")
+    bad_invisible = [r for r in cleaned_rows if invisible_pattern.search(r.get("chunk_text") or "")]
+    ok8 = len(bad_invisible) == 0
+    results.append(
+        ExpectationResult(
+            "chunk_text_no_invisible_chars",
+            ok8,
+            "warn",
+            f"rows_with_invisible_chars={len(bad_invisible)}",
+        )
+    )
+
+    # E9: chunk_id đã clean phải duy nhất để upsert idempotent
+    ids = [str(r.get("chunk_id") or "") for r in cleaned_rows]
+    dup_ids = len(ids) - len(set(ids))
+    ok9 = dup_ids == 0
+    results.append(
+        ExpectationResult(
+            "unique_cleaned_chunk_id",
+            ok9,
+            "halt",
+            f"duplicate_chunk_id_count={dup_ids}",
         )
     )
 

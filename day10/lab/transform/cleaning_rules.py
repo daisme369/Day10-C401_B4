@@ -2,7 +2,10 @@
 Cleaning rules — raw export → cleaned rows + quarantine.
 
 Baseline gồm các failure mode mở rộng (allowlist doc_id, parse ngày, HR stale version).
-Sinh viên thêm ≥3 rule mới: mỗi rule phải ghi `metric_impact` (xem README — chống trivial).
+Các rule mới của Sprint 2 tập trung vào:
+- làm sạch ký tự vô hình / BOM để tránh nội dung nhìn như nhau nhưng hash khác nhau,
+- chuẩn hóa exported_at sang ISO 8601 để phục vụ freshness / lineage,
+- quarantine chunk_id nguồn trùng để bắt lỗi export lặp trước khi embed.
 """
 
 from __future__ import annotations
@@ -10,6 +13,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import re
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
@@ -25,10 +29,34 @@ ALLOWED_DOC_IDS = frozenset(
 
 _ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 _DMY_SLASH = re.compile(r"^(\d{2})/(\d{2})/(\d{4})$")
+_INVISIBLE_CHARS = re.compile(r"[\u200b\u200c\u200d\ufeff]")
+_COLLAPSE_WS = re.compile(r"\s+")
 
 
 def _norm_text(s: str) -> str:
     return " ".join((s or "").strip().split()).lower()
+
+
+def _normalize_chunk_text(raw: str) -> Tuple[str, bool]:
+    """Remove invisible control characters and collapse repeated whitespace."""
+    original = raw or ""
+    sanitized = _INVISIBLE_CHARS.sub("", original)
+    normalized = _COLLAPSE_WS.sub(" ", sanitized).strip()
+    return normalized, normalized != original
+
+
+def _normalize_exported_at(raw: str) -> Tuple[str, str]:
+    """Normalize exported_at to canonical ISO 8601 string with Z suffix."""
+    s = (raw or "").strip()
+    if not s:
+        return "", "missing_exported_at"
+    try:
+        dt = datetime.fromisoformat(s.replace("Z", "+00:00") if s.endswith("Z") else s)
+    except ValueError:
+        return "", "invalid_exported_at_format"
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.isoformat().replace("+00:00", "Z"), ""
 
 
 def _stable_chunk_id(doc_id: str, chunk_text: str, seq: int) -> str:
@@ -77,17 +105,31 @@ def clean_rows(
     4) Quarantine: chunk_text rỗng hoặc effective_date rỗng sau chuẩn hoá.
     5) Loại trùng nội dung chunk_text (giữ bản đầu).
     6) Fix stale refund: policy_refund_v4 chứa '14 ngày làm việc' → 7 ngày.
+    7) Quarantine source chunk_id bị lặp để bắt export replay / duplicate batch.
+    8) Chuẩn hóa exported_at sang ISO 8601 để freshness và lineage đọc ổn định.
+    9) Loại ký tự vô hình / BOM trong chunk_text để dedupe không bị lệch bởi payload bẩn.
     """
     quarantine: List[Dict[str, Any]] = []
     seen_text: set[str] = set()
+    seen_source_ids: set[str] = set()
     cleaned: List[Dict[str, Any]] = []
     seq = 0
 
     for raw in rows:
+        source_chunk_id = (raw.get("chunk_id") or "").strip()
+        if not source_chunk_id:
+            quarantine.append({**raw, "reason": "missing_source_chunk_id"})
+            continue
+        if source_chunk_id in seen_source_ids:
+            quarantine.append({**raw, "reason": "duplicate_source_chunk_id"})
+            continue
+        seen_source_ids.add(source_chunk_id)
+
         doc_id = raw.get("doc_id", "")
-        text = raw.get("chunk_text", "")
+        text_raw = raw.get("chunk_text", "")
+        text, _ = _normalize_chunk_text(text_raw)
         eff_raw = raw.get("effective_date", "")
-        exported_at = raw.get("exported_at", "")
+        exported_at_raw = raw.get("exported_at", "")
 
         if doc_id not in ALLOWED_DOC_IDS:
             quarantine.append({**raw, "reason": "unknown_doc_id"})
@@ -113,6 +155,14 @@ def clean_rows(
 
         if not text:
             quarantine.append({**raw, "reason": "missing_chunk_text"})
+            continue
+
+        exported_at, exported_at_err = _normalize_exported_at(exported_at_raw)
+        if exported_at_err == "missing_exported_at":
+            quarantine.append({**raw, "reason": exported_at_err})
+            continue
+        if exported_at_err == "invalid_exported_at_format":
+            quarantine.append({**raw, "reason": exported_at_err, "exported_at_raw": exported_at_raw})
             continue
 
         key = _norm_text(text)
