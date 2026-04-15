@@ -10,7 +10,7 @@
 ```mermaid
 graph TD
     Raw[data/raw/policy_export_dirty.csv] --> Ingest(ingest: load_raw_csv)
-    Ingest --> Clean{"transform/cleaning_rules.py<br/>- allowlist doc_id<br/>- normalize effective_date<br/>- quarantine<br/>- fix refund 14->7"}
+    Ingest --> Clean{"transform/cleaning_rules.py<br/>- allowlist doc_id<br/>- normalize effective_date<br/>- quarantine (quá ngắn, HTML/XSS, future_ts)<br/>- fix refund 14->7"}
     
     Clean -->|Lỗi / Stale| Quar[artifacts/quarantine/quarantine_run_id.csv]
     Clean -->|Hợp lệ| Cleaned[artifacts/cleaned/cleaned_run_id.csv]

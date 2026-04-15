@@ -25,14 +25,19 @@ Tài liệu này được đồng bộ từ [lab/contracts/data_contract.yaml]
 |-----|------|----------|---------|
 | `chunk_id` | string | Có | ID ổn định sau clean (thường hash hoặc doc_id + seq) |
 | `doc_id` | string | Có | Khóa logic tài liệu nguồn (vd: policy_refund_v4) |
-| `chunk_text` | string | Có | Nội dung chunk; ràng buộc min_length = 8 |
+| `chunk_text` | string | Có | Nội dung chunk; ràng buộc min_length = 20 và max string length; không dính thẻ HTML |
 | `effective_date` | date | Có | Ngày hiệu lực chuẩn hóa để lọc version và truy vết |
-| `exported_at` | datetime | Có | Mốc thời gian export của record từ nguồn |
+| `exported_at` | datetime | Có | Mốc thời gian export của record từ nguồn (phải là ngày quá khứ / hợp lệ theo ISO) |
 
 Ràng buộc chất lượng chính:
 
 - `no_duplicate_chunk_text`: severity warn
 - `no_stale_refund_window`: severity halt
+- `chunk_min_length_20` (được chặn trước bằng cleaning rule 7): Quarantine chunk < 20 chữ.
+- `chunk_text_contains_html` (cleaning rule 8): Quarantine tránh XSS injection.
+- `exported_at_future_timestamp` (cleaning rule 9): Quarantine DB lỗi record ở tương lai.
+- `exported_at_iso_datetime` (expectation E8): severity halt nếu ngày export không hợp lệ.
+- `sla_p1_expected_response_and_resolution` (expectation E9): severity warn cảnh báo nếu SLA không theo đúng khung chuẩn (15p/4h).
 
 ---
 
