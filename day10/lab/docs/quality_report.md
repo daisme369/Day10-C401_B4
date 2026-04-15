@@ -1,6 +1,6 @@
 # Quality report — Lab Day 10 (nhóm)
 
-**run_id:** sprint3 
+**run_id:** sprint3_dirty, sprint3_clean
 
 **Ngày:** 15/04/2026
 
@@ -37,7 +37,7 @@ q_refund_window,Khách hàng có bao nhiêu ngày để yêu cầu hoàn tiền 
 **Sau:**
 * Rule xử lý của luồng ETL đã tự động chuẩn hóa chuỗi chính sách từ 14 ngày về 7 ngày. Dữ liệu nạp vào DB là dữ liệu chuẩn. Hệ thống RAG trả về kết quả xuất sắc, không còn hit vào keyword sai.
 
-* Trích xuất từ file eval_clean.csv: q_refund_window | top1_doc_id:
+* Trích xuất từ file eval_clean.csv:
 ```
 question_id,question,top1_doc_id,top1_preview,contains_expected,hits_forbidden,top1_doc_expected,top_k_used
 q_refund_window,Khách hàng có bao nhiêu ngày để yêu cầu hoàn tiền kể từ khi xác nhận đơn?,policy_refund_v4,Yêu cầu được gửi trong vòng 7 ngày làm việc kể từ thời điểm xác nhận đơn hàng.,yes,no,,3
