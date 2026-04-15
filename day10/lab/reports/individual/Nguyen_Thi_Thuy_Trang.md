@@ -22,11 +22,11 @@
 
 **Kết nối với thành viên khác:**
 - Phần của tôi phụ thuộc vào kết quả pipeline từ các thành viên còn lại. Tôi sử dụng các log, manifest, và báo cáo chất lượng để xây dựng runbook và tổng hợp báo cáo nhóm, đảm bảo hệ thống có thể được theo dõi và vận hành hiệu quả.
-_________________
 
 **Bằng chứng (commit / comment trong code):**
 
-_________________
+- Commit “Upload runbook.md”: cập nhật nội dung docs/runbook.md mô tả quy trình xử lý incident, freshness check và cách debug pipeline.
+- Commit “Update group_report.md”: cập nhật nội dung báo cáo nhóm
 
 ---
 
@@ -80,5 +80,5 @@ Sau:
 
 - Nếu có thêm thời gian, tôi sẽ kiểm tra thêm nhiều trường hợp dữ liệu lỗi (ví dụ: thiếu field, sai format ngày, duplicate phức tạp) để đảm bảo pipeline xử lý tốt hơn.
 
-- Ngoài ra, tôi muốn thử tham gia vào các bước xử lý dữ liệu như viết thêm cleaning rule hoặc expectation để hiểu rõ hơn toàn bộ pipeline, không chỉ dừng lại ở việc monitoring.
+- Tôi muốn thử tham gia vào các bước xử lý dữ liệu như viết thêm cleaning rule hoặc expectation để hiểu rõ hơn toàn bộ pipeline, không chỉ dừng lại ở việc monitoring.
 ---
