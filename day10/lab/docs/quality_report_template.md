@@ -1,6 +1,7 @@
 # Quality report — Lab Day 10 (nhóm)
 
 **run_id:** sprint3 
+
 **Ngày:** 15/04/2026
 
 ---
