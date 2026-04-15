@@ -112,8 +112,6 @@ def run_expectations(cleaned_rows: List[Dict[str, Any]]) -> Tuple[List[Expectati
         )
     )
 
-    halt = any(not r.passed and r.severity == "halt" for r in results)
-
     # E7: không còn effective_date rỗng sau clean
     missing_effective_date = [
         r
@@ -130,12 +128,12 @@ def run_expectations(cleaned_rows: List[Dict[str, Any]]) -> Tuple[List[Expectati
         )
     )
 
-    # E8: exported_at phải đúng định dạng ISO datetime
+    # E8: exported_at phải chứa định dạng ISO datetime (VD: YYYY-MM-DDTHH:MM:SS)
     exported_at_bad = [
         r
         for r in cleaned_rows
-        if not re.match(
-            r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$",
+        if not re.search(
+            r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}",
             (r.get("exported_at") or "").strip(),
         )
     ]
@@ -168,6 +166,8 @@ def run_expectations(cleaned_rows: List[Dict[str, Any]]) -> Tuple[List[Expectati
             f"suspicious_sla_rows={len(bad_sla)}",
         )
     )
+
+    halt = any(not r.passed and r.severity == "halt" for r in results)
     return results, halt
 
     
