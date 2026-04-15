@@ -1,16 +1,19 @@
 # Báo Cáo Nhóm — Lab Day 10: Data Pipeline & Data Observability
 
-**Tên nhóm:** ___________  
+**Tên nhóm:** C401-B4  
 **Thành viên:**
 | Tên | Vai trò (Day 10) | Email |
 |-----|------------------|-------|
-| ___ | Ingestion / Raw Owner | ___ |
-| ___ | Cleaning & Quality Owner | ___ |
-| ___ | Embed & Idempotency Owner | ___ |
-| ___ | Monitoring / Docs Owner | ___ |
+| Nguyễn Ngọc Tân | Ingestion Owner | ngoctannew@gmail.com |
+| Trần Việt Phương | Cleaning Owner | phuong251202@gmail.com |
+| Phạm Hoàng Tiến Mạnh | Quality Owner | phamnguyentienmanh2004@gmail.com |
+| Trịnh Uyên Chi | Evaluation Owner | trinhuyenchi2003@gmail.com |
+| Nguyễn Hoàng Nghĩa | Embed & Idempotency Owner | nhnghia210@gmail.com |
+| Lê Đức Anh | Docs Owner | ducanh198369@gmail.com |
+| Nguyễn Thị Thùy Trang | Monitoring Owner | nguyenthuytrang372004@gmail.com |
 
-**Ngày nộp:** ___________  
-**Repo:** ___________  
+**Ngày nộp:** 15/04/2026  
+**Repo:** `https://github.com/daisme369/Day10-C401_B4.git`  
 **Độ dài khuyến nghị:** 600–1000 từ
 
 ---
@@ -81,7 +84,7 @@ _________________
 
 > Dữ liệu sau embed có phục vụ lại multi-agent Day 09 không? Nếu có, mô tả tích hợp; nếu không, giải thích vì sao tách collection.
 
-_________________
+Dữ liệu sau khi được làm sạch và embed ở Day 10 có thể tái sử dụng cho hệ thống multi-agent Day 09 qua retrieval (RAG). Agent truy vấn sẽ gọi vecto database (ChromaDB) để tìm các document liên quan, từ đó cải thiện độ chính xác câu trả lời. Việc đảm bảo chất lượng dữ liệu (cleaning, validation) giúp giảm lỗi retrieval.
 
 ---
 
